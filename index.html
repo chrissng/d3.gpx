@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=1024, maximum-scale=1.0, user-scalable=no" />
+		<meta charset="utf-8">
+		<style>
+		* {
+			font-family: sans-serif;
+		}
+
+		div#appTitle {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			right: 0px;
+			width: 100%;
+			box-shadow: 0px 0px 5px 1px #000;
+			background-color: rgba(40, 40, 40, 0.85);
+		
+			font-weight: bold; 
+			line-height: 45px;
+			/*padding-left: 10px;*/
+			border-bottom: 1px solid #111;
+			color: #fff;
+		}
+
+		div#appTitle span#appName {
+			padding-left: 10px;
+		}
+		
+		div#appTitle span.sample {
+			font-weight: normal;
+			font-size: smaller;
+			font-style: italic;
+		}
+		
+		html, body {
+			height: 100%;
+			margin: 0px;
+			overflow: hidden;
+			background-color: #e8e0d8;
+		}
+		
+		.axisLine line, .axisLine path {
+			fill: none;
+			stroke: #fff;
+			shape-rendering: crispEdges;
+		}
+
+		.axis {
+		  font: 10px sans-serif;
+		  -webkit-user-select: none;
+		  -moz-user-select: none;
+		  user-select: none;
+		}
+
+		.axis .domain {
+		  fill: none;
+		  stroke: #000;
+		  /*stroke-opacity: .3;*/
+		  stroke-width: 10px;
+		  stroke-linecap: round;
+		}
+
+		.axis .halo {
+		  fill: none;
+		  stroke: #ddd;
+		  stroke-width: 7.5px;
+		  stroke-linecap: round;
+		}
+
+		.slider .handle {
+		  /*fill: #fff;*/
+		  stroke: #111;
+		  stroke-opacity: .5;
+		  stroke-width: 1.25px;
+		  pointer-events: none;
+		}
+
+		button#playpausebtn {
+			position: absolute;
+			top: 10px;
+			background: rgb(40,40,40);
+			border-radius: 2px;
+			border: none;
+			color: #fff;
+			cursor: pointer;
+			width: 45px;
+			height: 25px;
+			font-size: 10px;
+			font-weight: normal;
+			border: 1px solid rgba(17,17,17,0.5);
+			outline: 0;
+		}
+		button#playpausebtn:disabled {
+			color: #555;
+			cursor: auto;
+		}
+
+		div#intro {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			-webkit-transform: translateY(-50%) translateX(-50%);
+			-moz-transform: translateY(-50%) translateX(-50%);
+			-o-transform: translateY(-50%) translateX(-50%);
+			-ms-transform: translateY(-50%) translateX(-50%);
+			transform: translateY(-50%) translateX(-50%);
+		}
+
+		.dIntroText {
+			text-anchor: middle;
+			fill: #282828;
+			cursor: pointer;
+		}
+
+		a.dIntroText {
+			font-family: sans-serif;
+			font-size: 24px;
+			text-decoration: inherit;
+			color: black;
+		}
+
+		div#intro div * {
+			font-family: sans-serif;
+			font-size: 13px;
+			font-style: italic;
+		}
+
+		.dDataDropZone {
+			height: 100%;
+			width: 100%;
+			opacity: 1.0;
+
+			/*
+			transition: opacity .2s ease-in-out;
+			-moz-transition: opacity .2s ease-in-out;
+			-webkit-transition: opacity .2s ease-in-out;
+			-o-transition: opacity .2s ease-in-out;
+			transition: box-shadow .2s ease-in-out;
+			-moz-transition: box-shadow .2s ease-in-out;
+			-webkit-transition: box-shadow .2s ease-in-out;
+			-o-transition: box-shadow .2s ease-in-out;*/
+		}
+
+		.dDataDropZone svg {
+			width: 100%;
+		}
+
+		.dDataDropZone.dropping {
+			opacity: 0.3;
+			box-shadow: inset 0px -15px 50px 50px rgba(40, 40, 40, 1);
+		}
+
+		div#chartGroup {
+			position: absolute;
+			width: 720px;
+			margin: 0 auto;
+			bottom: 0%;
+			left: 50%;
+			-webkit-transform: translateX(-50%);
+		}
+
+
+		svg.dataChart path.chartLine {
+			fill: none;
+			shape-rendering: auto;
+			stroke: #000;
+			stroke-width: 1px;
+		}
+
+		svg.dataChart circle.chartCircle {
+			fill: rgb(222,45,38);
+			stroke-width: 1;
+			stroke: #000;
+		}
+
+		svg.dataChart text.chartCircleText {
+			font: 8pt sans-serif;
+			fill: rgb(222,45,38);
+			text-shadow: 1px 1px 0 #000, 0px 1px 0 #000;
+		}
+
+		svg.dataChart g.chartAxis text {
+			font: 8pt sans-serif;
+			fill: #555;
+		}
+		
+		svg.dataChart g.chartAxis path {
+			display: none;
+		}
+
+		svg.dataChart g.chartAxis line {
+			fill: none;
+			stroke: #555;
+			opacity: 0.4;
+			shape-rendering: crispEdges;
+		}
+		
+		/*
+		.x.chartAxis path {
+			display: none;
+		}*/
+		</style>
+		
+		<title>d3.gpx</title>
+		<script src="js/d3.v3.min.js"></script>
+		<script src="js/tile.js"></script>
+		<script src="js/gpxviewer.js"></script>
+	</head>
+	<body>
+		<div class="dDataDropZone" id="gpxCtr">
+			<div id='intro'>
+				<p><a class='dIntroText' href="http://en.wikipedia.org/wiki/GPS_eXchange_Format" target="_blank">drop a GPX file anywhere and start visualizing your GPS tracks</a></p>
+				<div>
+					<span class='dIntroText' id='dSVGSampleDataset'>view sample gpx file or </span>
+					<span><input id="dDataFileUpload" type="file"></span>
+				</div>
+			</div>
+		</div>
+		<div id="appTitle"><span id='appName'>d3.gpx</span> <span class="sample"></span></div>
+		<script src="js/main.js"></script>
+		<script>
+			(function() { d3.select("#dSVGSampleDataset").on("click", function(d) { loadSampleGPX(); }); })();
+		</script>
+	</body>
+</html>
